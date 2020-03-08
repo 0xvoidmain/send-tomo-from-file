@@ -1,0 +1,27 @@
+{
+  "name": "send-tomo-to-list-address",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_ENV=production node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bignumber.js": "9.0.0",
+    "bip39": "3.0.2",
+    "csvtojson": "^2.0.10",
+    "dotenv": "8.2.0",
+    "ethereumjs-wallet": "0.6.3",
+    "moment-timezone": "0.5.28",
+    "web3": "1.2.6"
+  },
+  "devDependencies": {
+    "nodemon": "2.0.2"
+  },
+  "engines": {
+    "node": "10.18.1"
+  }
+}
