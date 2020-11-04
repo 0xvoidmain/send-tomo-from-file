@@ -10,6 +10,7 @@ const GAS_PRICE = config.GAS_PRICE
 const abi = require('./abi')
 
 async function transfer(privateKey, toAddress, amount, data) {
+  console.log(privateKey, toAddress)
   if (!web3.utils.isAddress(toAddress)) {
     throw Error("Invalid address")
   }

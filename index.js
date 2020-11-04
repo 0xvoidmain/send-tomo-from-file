@@ -16,22 +16,50 @@ async function readFileCsv(path) {
   })
 }
 
-async function main() {
-  if (!process.argv[2]) {
-    console.error('Enter your file')
-    return;
+async function send() {
+  var file = './airdop.csv'
+  var sendFile = path.join(__dirname, file)
+  var resultSendFile = path.join(__dirname, file + '.out.csv')
+  var resultFileData = ''
+  try {
+    resultFileData = fs.readFileSync(resultSendFile, 'utf8');
   }
-  var sendFile = path.join(__dirname, process.argv[2])
-  var resultSendFile = path.join(__dirname, process.argv[3] || (process.argv[2] + '.out.csv'))
+  catch (ex) {
+  }
+
+  if (resultFileData.indexOf('Token,TokenAddress,Address,Amount,Tx')  == -1)
+  {
+    fs.appendFileSync(resultSendFile, `Token,TokenAddress,Address,Amount,Tx\n`)
+  }
+
   var data = await readFileCsv(sendFile)
-  console.log(data)
   for (var i = 0; i < data.length; i++) {
-    console.log(data[i].Address, data[i].Tomo)
-    var hash = await methods.transfer(data[i].Tomo)
-      .to(data[i].Address)
-      .from('0x33CFD63851FFE5F806B587505B6C2F89C735310633F2F8358D7E22113EC64D55')
-    fs.appendFileSync(resultSendFile, `${data[i].Address},${data[i].Tomo},${hash}\n`)
+    if (resultFileData.indexOf(data[i].Address) >= 0) {
+      console.log('Skip: Sent > ', `${data[i].Token}, ${data[i].TokenAddress}, ${data[i].Address}, ${data[i].Amount}`)
+    }
+    else {
+      console.log(data[i].Token, data[i].Address, data[i].Amount)
+      if (data[i].Token.toString().toUpperCase() === 'TOMO') {
+        console.log(data[i].Address.trim())
+        var hash = await methods.transfer(data[i].Amount)
+          .to(data[i].Address.trim())
+          .from('0x0ad48442cb0fa6f8ec305e1e7e19dc045995bffb07d93b183201a616ffd35aea')
+        resultFileData += `TOMO,,${data[i].Address},${data[i].Amount},${hash}\n`
+        fs.appendFileSync(resultSendFile, `TOMO,,${data[i].Address},${data[i].Amount},${hash}\n`)
+      }
+      else if (data[i].TokenAddress) {
+        var hash = await methods.transfer(data[i].Amount)
+          .token(data[i].TokenAddress)
+          .to(data[i].Address.trim())
+          .from('0x0ad48442cb0fa6f8ec305e1e7e19dc045995bffb07d93b183201a616ffd35aea')
+        resultFileData += `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount},${hash}\n`
+        fs.appendFileSync(resultSendFile, `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount},${hash}\n`)
+      }
+      else {
+        console.log('Skip: Invalid format > ', `${data[i].Token}, ${data[i].TokenAddress}, ${data[i].Address}, ${data[i].Amount}`)
+      }
+    }
   }
 }
 
-main()
+send()
