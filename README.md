@@ -17,6 +17,8 @@ TOMO,0x4cD6cfB32A8699386E65b591f02819e34e4e4B4C,0xeb6520682d8de2c10d6f73853f1d22
 
 ## Send via command
 
-step 1: edit file airdrop.csv with format above
+step 1: create `.evn` file with `.env_sample` file
 
-step 2: run command `node index.js`
+step 2: edit file airdrop.csv with format above
+
+step 3: run command `node index.js`
