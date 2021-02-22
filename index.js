@@ -43,7 +43,7 @@ async function send() {
         console.log(data[i].Address.trim())
         var hash = await methods.transfer(data[i].Amount)
           .to(data[i].Address.trim())
-          .from('0x0ad48442cb0fa6f8ec305e1e7e19dc045995bffb07d93b183201a616ffd35aea')
+          .from(process.env.PRIVATE_KEY)
         resultFileData += `TOMO,,${data[i].Address},${data[i].Amount},${hash}\n`
         fs.appendFileSync(resultSendFile, `TOMO,,${data[i].Address},${data[i].Amount},${hash}\n`)
       }
@@ -51,7 +51,7 @@ async function send() {
         var hash = await methods.transfer(data[i].Amount)
           .token(data[i].TokenAddress)
           .to(data[i].Address.trim())
-          .from('0x0ad48442cb0fa6f8ec305e1e7e19dc045995bffb07d93b183201a616ffd35aea')
+          .from(process.env.PRIVATE_KEY)
         resultFileData += `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount},${hash}\n`
         fs.appendFileSync(resultSendFile, `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount},${hash}\n`)
       }
