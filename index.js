@@ -34,7 +34,7 @@ async function send() {
 
   var data = await readFileCsv(sendFile)
   for (var i = 0; i < data.length; i++) {
-    if (resultFileData.indexOf(data[i].Address) >= 0) {
+    if (resultFileData.indexOf(`${data[i].TokenAddress},${data[i].Address}`) >= 0) {
       console.log('Skip: Sent > ', `${data[i].Token}, ${data[i].TokenAddress}, ${data[i].Address}, ${data[i].Amount}`)
     }
     else {
