@@ -33,33 +33,98 @@ async function send() {
   }
 
   var data = await readFileCsv(sendFile)
+  // for (var i = 0; i < data.length; i++) {
+  //   if (resultFileData.indexOf(`${data[i].TokenAddress},${data[i].Address}`) >= 0) {
+  //     console.log('Skip: Sent > ', `${data[i].Token}, ${data[i].TokenAddress}, ${data[i].Address}, ${data[i].Amount}`)
+  //   }
+  //   else {
+  //     console.log(data[i].Token, data[i].Address, data[i].Amount)
+  //     if (data[i].Token.toString().toUpperCase() === 'TOMO') {
+  //       console.log(data[i].Address.trim())
+  //       var hash = await methods.transfer(data[i].Amount)
+  //         .to(data[i].Address.trim())
+  //         .from(process.env.PRIVATE_KEY)
+  //       resultFileData += `TOMO,,${data[i].Address},${data[i].Amount},${hash}\n`
+  //       fs.appendFileSync(resultSendFile, `TOMO,,${data[i].Address},${data[i].Amount},${hash}\n`)
+  //     }
+  //     else if (data[i].TokenAddress) {
+  //       var hash = await methods.transfer(data[i].Amount)
+  //         .token(data[i].TokenAddress)
+  //         .to(data[i].Address.trim())
+  //         .from(process.env.PRIVATE_KEY)
+  //       resultFileData += `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount},${hash}\n`
+  //       fs.appendFileSync(resultSendFile, `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount},${hash}\n`)
+  //     }
+  //     else {
+  //       console.log('Skip: Invalid format > ', `${data[i].Token}, ${data[i].TokenAddress}, ${data[i].Address}, ${data[i].Amount}`)
+  //     }
+  //   }
+  // }
+
+  var amounts = []
+  var addresses = []
   for (var i = 0; i < data.length; i++) {
     if (resultFileData.indexOf(`${data[i].TokenAddress},${data[i].Address}`) >= 0) {
       console.log('Skip: Sent > ', `${data[i].Token}, ${data[i].TokenAddress}, ${data[i].Address}, ${data[i].Amount}`)
     }
     else {
-      console.log(data[i].Token, data[i].Address, data[i].Amount)
-      if (data[i].Token.toString().toUpperCase() === 'TOMO') {
-        console.log(data[i].Address.trim())
-        var hash = await methods.transfer(data[i].Amount)
-          .to(data[i].Address.trim())
-          .from(process.env.PRIVATE_KEY)
-        resultFileData += `TOMO,,${data[i].Address},${data[i].Amount},${hash}\n`
-        fs.appendFileSync(resultSendFile, `TOMO,,${data[i].Address},${data[i].Amount},${hash}\n`)
-      }
-      else if (data[i].TokenAddress) {
-        var hash = await methods.transfer(data[i].Amount)
-          .token(data[i].TokenAddress)
-          .to(data[i].Address.trim())
-          .from(process.env.PRIVATE_KEY)
-        resultFileData += `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount},${hash}\n`
-        fs.appendFileSync(resultSendFile, `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount},${hash}\n`)
+      if (data[i].TokenAddress) {
+        amounts.push(data[i].Amount)
+        addresses.push(data[i].Address)
+        resultFileData += `${data[i].Token},${data[i].TokenAddress},${data[i].Address},${data[i].Amount}\n`
+
+        if (amounts.length >= 2 || i == data.length - 1) {
+          console.log('>', addresses)
+          var hash = await multiSend('0x3F78299dcf4A3f43750b17522d2151BBB861C48b', '0x4EaafA85bDBe9B02930926C594F83e62B036B1be', 18, amounts, addresses)
+          for (var j = 0; j < amounts.length; j++) {
+            console.log(`tDAO,0x4EaafA85bDBe9B02930926C594F83e62B036B1be,${addresses[j]},${amounts[j]},${hash}`)
+            fs.appendFileSync(resultSendFile, `tDAO,0x4EaafA85bDBe9B02930926C594F83e62B036B1be,${addresses[j]},${amounts[j]},${hash}\n`)
+          }
+
+          amounts = []
+          addresses = []
+        }
       }
       else {
         console.log('Skip: Invalid format > ', `${data[i].Token}, ${data[i].TokenAddress}, ${data[i].Address}, ${data[i].Amount}`)
       }
     }
   }
+
+  
+}
+
+async function multiSend(contract, token, decimals, amounts, addresses) {
+  return await methods.contract(contract, [{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "token",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "decimails",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256[]",
+				"name": "amounts",
+				"type": "uint256[]"
+			},
+			{
+				"internalType": "address[]",
+				"name": "adds",
+				"type": "address[]"
+			}
+		],
+		"name": "sendFrom",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	}]).methods('sendFrom')
+  .params(token, decimals, amounts, addresses)
+  .send(process.env.PRIVATE_KEY)
 }
 
 send()
