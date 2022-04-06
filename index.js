@@ -61,6 +61,8 @@ async function send() {
   //   }
   // }
 
+  var ContractAddress = '0xa5f6aeCa610dEff2C407812044c13884009cff27'
+  var TokenAddress = '0x06597FFaFD82E66ECeD9209d539032571ABD50d9'
   var amounts = []
   var addresses = []
   for (var i = 0; i < data.length; i++) {
@@ -75,10 +77,10 @@ async function send() {
 
         if (amounts.length >= 2 || i == data.length - 1) {
           console.log('>', addresses)
-          var hash = await multiSend('0x3F78299dcf4A3f43750b17522d2151BBB861C48b', '0x4EaafA85bDBe9B02930926C594F83e62B036B1be', 18, amounts, addresses)
+          var hash = await multiSend(ContractAddress, TokenAddress, 18, amounts, addresses)
           for (var j = 0; j < amounts.length; j++) {
-            console.log(`tDAO,0x4EaafA85bDBe9B02930926C594F83e62B036B1be,${addresses[j]},${amounts[j]},${hash}`)
-            fs.appendFileSync(resultSendFile, `tDAO,0x4EaafA85bDBe9B02930926C594F83e62B036B1be,${addresses[j]},${amounts[j]},${hash}\n`)
+            console.log(`tDAO,${TokenAddress},${addresses[j]},${amounts[j]},${hash}`)
+            fs.appendFileSync(resultSendFile, `tDAO,${TokenAddress},${addresses[j]},${amounts[j]},${hash}\n`)
           }
 
           amounts = []
